@@ -8,7 +8,7 @@ export const teams: TTeam[] = [
   { id: "VALENCIA_ID", name: "Valencia F.C." },
   { id: "ATHL_ID", name: "Athletic Bilbao" },
   { id: "CELTA_ID", name: "Celta Vigo" },
-  { id: "BETIS_ID", name: "real Betis" },
+  { id: "BETIS_ID", name: "Real Betis" },
   { id: "LEVANTE_ID", name: "Levante" },
   { id: "SOCIEDAD_ID", name: "Real Sociedad" },
   { id: "LAS_PALMAS_ID", name: "U.D. Las Palmas" },
