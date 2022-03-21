@@ -1,8 +1,10 @@
 import { Box, Divider, Stack, Typography } from "@mui/material";
-import React from "react";
+import React, { useContext } from "react";
 import { TGame, TPlaceholderGameTeam } from "tournament_creator";
 
 import styled from "@emotion/styled";
+import { useActor } from "@xstate/react";
+import { BrackeStateContext } from "../../state/Bracket";
 
 const Typo = styled(Typography)`
   background-color: rgba(0, 0, 0, 0.05);
@@ -13,11 +15,24 @@ const Typo = styled(Typography)`
   }
 `;
 
-type TGameProps = { game: TGame };
+type TGameProps = { game: TGame; highlighted?: boolean };
 
-const Game: React.FC<TGameProps> = ({ game }) => {
+const Game: React.FC<TGameProps> = ({ game, highlighted }) => {
+  const bracketServices = useContext(BrackeStateContext);
+  const [, send] = useActor(bracketServices.bracketService);
+
   const onHover = (placeholder?: TPlaceholderGameTeam) => {
-    console.log(placeholder);
+    send({
+      type: "CHOOSE",
+      game: {
+        ...placeholder,
+        round: placeholder?.game.roundName,
+      },
+    });
+  };
+
+  const onLeave = () => {
+    send("CLEAR");
   };
 
   const homeTeam = React.useMemo(
@@ -37,7 +52,16 @@ const Game: React.FC<TGameProps> = ({ game }) => {
   );
 
   return (
-    <Box border={"solid 0.5px rgba(0,0,0,0.7)"} borderRadius="5px">
+    <Box
+      border={
+        highlighted
+          ? "solid 0.2px rgba(0,0,0,0.8)"
+          : "solid 0.2px rgba(0,0,0,0.4)"
+      }
+      borderRadius="5px"
+      boxShadow={highlighted ? "1px 1px 5px rgba(0,0,0,0.6)" : undefined}
+      onMouseLeave={() => onLeave()}
+    >
       <Stack>
         <Typo onMouseEnter={() => onHover(game.match.placeholderGame?.home)}>
           {homeTeam}
@@ -67,10 +91,21 @@ export const withRoundName =
     (
       <Box>
         <Typography fontSize={"13px"} textAlign={"right"}>
-          {`${props.game.round}${
-            props.game.branch ? " " + props.game.branch : ""
-          } ${props.game.gameNumber}`}
+          {getRoundName(props.game)}
         </Typography>
         <Component {...props} />
       </Box>
     );
+
+const getRoundName = (game: TGame) => {
+  if (game.round === "FINAL") {
+    return getFinalRoundName(game);
+  }
+
+  return `${game.round}${game.branch ? " " + game.branch : ""} ${
+    game.gameNumber
+  }`;
+};
+
+const getFinalRoundName = (game: TGame) =>
+  `${game.branch ? (game.branch.charCodeAt(0) - 64) * 2 - 1 : 1} place`;
