@@ -1,55 +1,65 @@
 import { useContext, useMemo } from "react";
-import { Stack } from "@mui/material";
+import { Grid, Stack } from "@mui/material";
 import { useTeamsService } from "./services/teams-service";
 import { createBracket, TGame } from "tournament_creator";
 import Round from "./components/bracket/Round";
 import Game, { withRoundName } from "./components/games/Game";
 import { useActor } from "@xstate/react";
-import { BrackeStateContext, TGameRelation } from "./state/Bracket";
+import { TGameRelation } from "./state/Bracket";
+import { GlobalStateContext } from "./state";
+import TeamsList from "./components/teams/List";
+import Params from "./components/bracket/Params";
 
 function App() {
-  const bracketServices = useContext(BrackeStateContext);
-  const [state] = useActor(bracketServices.bracketService);
-  const isChosen = state.matches("chosen");
+  const { gameService, bracketService } = useContext(GlobalStateContext);
+  const [gameState] = useActor(gameService);
+  const [bracketState] = useActor(bracketService);
+
+  const isChosen = gameState.matches("chosen");
 
   const teams = useTeamsService(16);
 
-  const bracket = createBracket({
-    round: "1/16",
-    teams,
-    lastPlaceMatch: 80,
-    returnMatches: [false, true],
-  });
+  const bracket = bracketState.context.games;
 
   const roundNames = Array.from(new Set(bracket.map((game) => game.round)));
 
   const GameWithRound = withRoundName(Game);
 
   const highlitghtedGames = useMemo(() => {
-    if (!isChosen || !state.context.game || !bracket) {
+    if (!isChosen || !gameState.context.game || !bracket) {
       return [];
     }
-    return getRelatedGames(state.context.game, bracket);
-  }, [state.context.game, bracket, isChosen]);
+    return getRelatedGames(gameState.context.game, bracket);
+  }, [gameState.context.game, bracket, isChosen]);
 
   return (
     <div className="App" style={{ padding: "5px" }}>
-      <Stack direction={"row"} spacing={4}>
-        {roundNames.map((roundName) => (
-          <Round key={roundName} roundName={roundName}>
-            {bracket
-              .filter((game) => game.round === roundName)
-              .sort(sortByRound)
-              .map((game) => (
-                <GameWithRound
-                  game={game}
-                  highlighted={Boolean(highlitghtedGames.find(isTheGame(game)))}
-                  key={`${game.round}_${game.branch}_${game.gameNumber}`}
-                />
-              ))}
-          </Round>
-        ))}
-      </Stack>
+      <Grid container spacing={2}>
+        <Grid item>
+          <Stack direction={"row"} spacing={4}>
+            {roundNames.map((roundName) => (
+              <Round key={roundName} roundName={roundName}>
+                {bracket
+                  .filter((game) => game.round === roundName)
+                  .sort(sortByRound)
+                  .map((game) => (
+                    <GameWithRound
+                      game={game}
+                      highlighted={Boolean(
+                        highlitghtedGames.find(isTheGame(game))
+                      )}
+                      key={`${game.round}_${game.branch}_${game.gameNumber}`}
+                    />
+                  ))}
+              </Round>
+            ))}
+          </Stack>
+        </Grid>
+        <Grid item>
+          <TeamsList teams={teams} />
+          <Params variables={bracketState.context.variables} />
+        </Grid>
+      </Grid>
     </div>
   );
 }

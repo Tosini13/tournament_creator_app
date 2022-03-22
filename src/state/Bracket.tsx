@@ -1,7 +1,5 @@
-import { useInterpret } from "@xstate/react";
-import { createContext } from "react";
 import { TPlaceholderGameTeam } from "tournament_creator";
-import { createMachine, assign, InterpreterFrom } from "xstate";
+import { createMachine, assign } from "xstate";
 
 export type TGameRelation = TPlaceholderGameTeam;
 
@@ -16,10 +14,6 @@ type TBracketStateEvent = {
 
 const initBracket: TBracketStateContext = {
   game: null,
-  // {
-  //   game: { gameNumber: 2, roundName: E_PLAY_OFFS_ROUND.SEMI_FINAL },
-  //   promotionType: "winner",
-  // },
 };
 
 const chooseGame = assign<TBracketStateContext, TBracketStateEvent>({
@@ -30,7 +24,7 @@ const clearGame = assign<TBracketStateContext, TBracketStateEvent>({
   game: () => null,
 });
 
-export const bracketMachine = createMachine<TBracketStateContext>(
+export const gameMachine = createMachine<TBracketStateContext>(
   {
     initial: "notChosen",
     context: initBracket,
@@ -61,17 +55,3 @@ export const bracketMachine = createMachine<TBracketStateContext>(
     },
   }
 );
-
-export const BrackeStateContext = createContext({
-  bracketService: {} as InterpreterFrom<typeof bracketMachine>,
-});
-
-export const BracketStateProvider: React.FC = ({ children }) => {
-  const bracketService = useInterpret(bracketMachine);
-
-  return (
-    <BrackeStateContext.Provider value={{ bracketService }}>
-      {children}
-    </BrackeStateContext.Provider>
-  );
-};

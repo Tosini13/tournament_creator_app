@@ -4,9 +4,9 @@ import { TGame, TPlaceholderGameTeam } from "tournament_creator";
 
 import styled from "@emotion/styled";
 import { useActor } from "@xstate/react";
-import { BrackeStateContext } from "../../state/Bracket";
 import { TeamName } from "../teams/TeamName";
 import { TeamPlaceholder } from "../teams/TeamPlaceholder";
+import { GlobalStateContext } from "../../state";
 
 const TeamContainer = styled.div`
   background-color: rgba(0, 0, 0, 0.05);
@@ -20,8 +20,8 @@ const TeamContainer = styled.div`
 type TGameProps = { game: TGame; highlighted?: boolean };
 
 const Game: React.FC<TGameProps> = ({ game, highlighted }) => {
-  const bracketServices = useContext(BrackeStateContext);
-  const [, send] = useActor(bracketServices.bracketService);
+  const { gameService } = useContext(GlobalStateContext);
+  const [, send] = useActor(gameService);
 
   const onHover = (placeholder?: TPlaceholderGameTeam) => {
     send({

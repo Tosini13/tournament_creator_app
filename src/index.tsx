@@ -3,13 +3,13 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import { BracketStateProvider } from "./state/Bracket";
+import { GlobalStateProvider } from "./state";
 
 ReactDOM.render(
   <React.StrictMode>
-    <BracketStateProvider>
+    <GlobalStateProvider>
       <App />
-    </BracketStateProvider>
+    </GlobalStateProvider>
   </React.StrictMode>,
   document.getElementById("root")
 );
