@@ -19,7 +19,7 @@ const withPlaceholder =
   (Component: React.ComponentType<TTeamProps>) =>
   ({ placeholder }: TWithPlaceholderProps) => {
     if (!placeholder) {
-      return <Component name={"NO_PLACEHOLDER"} />;
+      return <Component name={"NO_PREV_GAME"} />;
     }
     return <Component name={getPlaceholder(placeholder)} />;
   };

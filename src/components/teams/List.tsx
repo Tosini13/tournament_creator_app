@@ -5,13 +5,18 @@ import { useTeamsActions } from "../../services/teams-service";
 
 type TListProps = {
   teams: TTeam[];
+  checkedTeams: string[];
 };
 
-const List: React.FC<TListProps> = ({ teams }) => {
+const List: React.FC<TListProps> = ({ teams, checkedTeams }) => {
   return (
     <Stack spacing={1}>
       {teams.map((team) => (
-        <TeamForm key={team.id} team={team} />
+        <TeamForm
+          key={team.id}
+          team={team}
+          checked={Boolean(checkedTeams.includes(team.id))}
+        />
       ))}
     </Stack>
   );
@@ -19,15 +24,29 @@ const List: React.FC<TListProps> = ({ teams }) => {
 
 export default List;
 
-const TeamForm = ({ team }: { team: TTeam }) => {
-  const { changeName } = useTeamsActions();
+const TeamForm = ({ team, checked }: { team: TTeam; checked: boolean }) => {
+  const { changeName, chooseTeam } = useTeamsActions();
   const [name, setName] = useState(team.name);
 
   useEffect(() => {
     changeName({ name, id: team.id });
   }, [name, team.id]);
 
+  const check = (checked: boolean) =>
+    chooseTeam({ id: team.id, isChecked: checked });
+
   return (
-    <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
+    <Stack direction={"row"} spacing={1}>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => check(e.target.checked)}
+      />
+      <input
+        type="text"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+    </Stack>
   );
 };

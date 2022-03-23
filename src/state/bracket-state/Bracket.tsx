@@ -3,27 +3,32 @@ import {
   TCreateBracketProps,
   TGame,
   TPlaceholderGameTeam,
+  TTeam,
 } from "tournament_creator";
 import { createMachine } from "xstate";
-import { teams } from "../../services/teams-service/mockData";
 import { changeVariables } from "./actions";
 
 export type TGameRelation = TPlaceholderGameTeam;
 
+export type TVariables = Omit<TCreateBracketProps, "teams">;
+
 export type TBracketStateContext = {
-  games: TGame[];
-  variables: TCreateBracketProps;
+  createBracket: (teams: TTeam[]) => TGame[];
+  variables: TVariables;
 };
 
-const initVariables: TCreateBracketProps = {
+export const createBracketByStep =
+  (variables: TVariables) => (teams: TTeam[]) =>
+    createBracket({ teams, ...variables });
+
+const initVariables: TVariables = {
   round: "1/16",
-  teams: teams,
   lastPlaceMatch: 1,
   returnMatches: [false, true],
 };
 
 const initBracket: TBracketStateContext = {
-  games: createBracket(initVariables),
+  createBracket: createBracketByStep(initVariables),
   variables: initVariables,
 };
 

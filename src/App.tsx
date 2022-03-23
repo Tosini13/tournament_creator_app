@@ -1,25 +1,27 @@
 import { useContext, useMemo } from "react";
 import { Grid, Stack } from "@mui/material";
-import { useTeamsService } from "./services/teams-service";
-import { createBracket, TGame } from "tournament_creator";
+import { TGame } from "tournament_creator";
 import Round from "./components/bracket/Round";
 import Game, { withRoundName } from "./components/games/Game";
 import { useActor } from "@xstate/react";
 import { TGameRelation } from "./state/Bracket";
 import { GlobalStateContext } from "./state";
-import TeamsList from "./components/teams/List";
-import Params from "./components/bracket/Params";
+import Menu from "./components/menu/Menu";
 
 function App() {
-  const { gameService, bracketService } = useContext(GlobalStateContext);
+  const { gameService, bracketService, teamsService } =
+    useContext(GlobalStateContext);
   const [gameState] = useActor(gameService);
   const [bracketState] = useActor(bracketService);
+  const [teamsState] = useActor(teamsService);
 
   const isChosen = gameState.matches("chosen");
 
-  const teams = useTeamsService(16);
-
-  const bracket = bracketState.context.games;
+  const bracket = bracketState.context.createBracket(
+    teamsState.context.teams.filter((team) =>
+      teamsState.context.chosenTeams.includes(team.id)
+    )
+  );
 
   const roundNames = Array.from(new Set(bracket.map((game) => game.round)));
 
@@ -33,9 +35,9 @@ function App() {
   }, [gameState.context.game, bracket, isChosen]);
 
   return (
-    <div className="App" style={{ padding: "5px" }}>
-      <Grid container spacing={2}>
-        <Grid item>
+    <div className="App">
+      <Grid container>
+        <Grid item style={{ flexGrow: 1 }}>
           <Stack direction={"row"} spacing={4}>
             {roundNames.map((roundName) => (
               <Round key={roundName} roundName={roundName}>
@@ -56,8 +58,7 @@ function App() {
           </Stack>
         </Grid>
         <Grid item>
-          <TeamsList teams={teams} />
-          <Params variables={bracketState.context.variables} />
+          <Menu />
         </Grid>
       </Grid>
     </div>

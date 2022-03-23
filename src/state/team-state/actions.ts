@@ -18,3 +18,20 @@ export const changeTeamName = assign<TTeamsStateContext, TEvent>({
       ? context.teams.map(changeTeamWithId(event.payload))
       : context.teams,
 });
+
+export type TEventChooseTeamPayload = { id: string; isChecked: boolean };
+type TEventChooseTeam = {
+  type: string;
+  payload?: TEventChooseTeamPayload;
+};
+export const chooseTeam = assign<TTeamsStateContext, TEventChooseTeam>({
+  chosenTeams: (context, { payload }) => {
+    if (!payload) {
+      return context.chosenTeams;
+    }
+    if (payload.isChecked) {
+      return [...context.chosenTeams, payload.id];
+    }
+    return context.chosenTeams.filter((id) => id !== payload.id);
+  },
+});

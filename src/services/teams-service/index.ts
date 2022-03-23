@@ -2,11 +2,15 @@ import { useActor } from "@xstate/react";
 import { useContext } from "react";
 import { TTeam } from "tournament_creator";
 import { GlobalStateContext } from "../../state";
+import { TEventChooseTeamPayload } from "../../state/team-state/actions";
 
-export const useTeamsService = (qty?: number) => {
+export const useTeamsService = () => {
   const { teamsService } = useContext(GlobalStateContext);
   const [state] = useActor(teamsService);
-  return state.context.teams.slice(0, qty);
+  return {
+    teams: state.context.teams,
+    chosen: state.context.chosenTeams,
+  };
 };
 
 export const useGetTeam = (id: string) => {
@@ -27,7 +31,15 @@ export const useTeamsActions = () => {
     });
   };
 
+  const chooseTeam = (payload: TEventChooseTeamPayload) => {
+    send({
+      type: "CHOOSE",
+      payload,
+    });
+  };
+
   return {
     changeName,
+    chooseTeam,
   };
 };

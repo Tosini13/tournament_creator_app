@@ -10,7 +10,7 @@ const withTeamName =
   ({ id }: TWithTeamProps) => {
     const team = useGetTeam(id);
 
-    return <Component name={team?.name ?? "NO_NAME"} />;
+    return <Component name={team?.name ?? "NO_TEAM"} />;
   };
 
 export const TeamName = withTeamName(Team);
