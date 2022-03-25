@@ -1,8 +1,10 @@
 import {
   createBracket,
+  E_PLAY_OFFS_ROUND,
   TCreateBracketProps,
   TGame,
   TPlaceholderGameTeam,
+  TRoundName,
   TTeam,
 } from "tournament_creator";
 import { createMachine } from "xstate";
@@ -10,7 +12,10 @@ import { changeVariables } from "./actions";
 
 export type TGameRelation = TPlaceholderGameTeam;
 
-export type TVariables = Omit<TCreateBracketProps, "teams">;
+export type TVariables = Omit<
+  TCreateBracketProps,
+  "teams" | "returnMatches"
+> & { returnMatches: { [key: TRoundName | string]: boolean } };
 
 export type TBracketStateContext = {
   createBracket: (teams: TTeam[]) => TGame[];
@@ -19,12 +24,21 @@ export type TBracketStateContext = {
 
 export const createBracketByStep =
   (variables: TVariables) => (teams: TTeam[]) =>
-    createBracket({ teams, ...variables });
+    createBracket({
+      teams,
+      ...variables,
+      returnMatches: Object.values(variables.returnMatches).reverse(),
+    });
 
 const initVariables: TVariables = {
   round: "1/16",
   lastPlaceMatch: 1,
-  returnMatches: [false, true],
+  returnMatches: {
+    FINAL: true,
+    SEMI_FINAL: false,
+    QUARTER_FINAL: true,
+    "1/16": false,
+  },
 };
 
 const initBracket: TBracketStateContext = {
@@ -39,7 +53,6 @@ export const bracketMachine = createMachine<TBracketStateContext>(
     states: {
       CREATED: {
         on: {
-          //   CLEAR: { target: "EMPTY", actions: ["clear"] },
           CHANGE_VARIABLES: {
             target: "CREATED",
             actions: ["changeVariables"],

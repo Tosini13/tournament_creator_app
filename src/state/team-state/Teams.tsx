@@ -13,7 +13,7 @@ export const teamsMachine = createMachine<TTeamsStateContext>(
     initial: "CONTAIN",
     context: {
       teams,
-      chosenTeams: teams.slice(0, 8).map((t) => t.id),
+      chosenTeams: [...teams.slice(0, 8).map((t) => t.id)],
     },
     states: {
       CONTAIN: {

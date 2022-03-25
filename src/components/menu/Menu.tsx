@@ -1,8 +1,5 @@
-import { useContext } from "react";
-import { useActor } from "@xstate/react";
 import styled from "@emotion/styled";
 import TeamsList from "../teams/List";
-import { GlobalStateContext } from "../../state";
 import { useTeamsService } from "../../services/teams-service";
 import Params from "../bracket/Params";
 import { Typography } from "@mui/material";
@@ -27,8 +24,6 @@ type TMenuProps = {};
 
 const Menu: React.FC<TMenuProps> = () => {
   const { teams, chosen } = useTeamsService();
-  const { bracketService } = useContext(GlobalStateContext);
-  const [bracketState] = useActor(bracketService);
 
   return (
     <MenuDiv>
@@ -36,7 +31,7 @@ const Menu: React.FC<TMenuProps> = () => {
       <SubMenuContainer>
         <TeamsList teams={teams} checkedTeams={chosen} />
       </SubMenuContainer>
-      <Params variables={bracketState.context.variables} />
+      <Params />
     </MenuDiv>
   );
 };

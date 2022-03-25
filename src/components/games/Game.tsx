@@ -7,6 +7,7 @@ import { useActor } from "@xstate/react";
 import { TeamName } from "../teams/TeamName";
 import { TeamPlaceholder } from "../teams/TeamPlaceholder";
 import { GlobalStateContext } from "../../state";
+import Score from "./Score";
 
 const TeamContainer = styled.div`
   background-color: rgba(0, 0, 0, 0.05);
@@ -62,18 +63,27 @@ const Game: React.FC<TGameProps> = ({ game, highlighted }) => {
       boxShadow={highlighted ? "1px 1px 5px rgba(0,0,0,0.6)" : undefined}
       onMouseLeave={() => onLeave()}
     >
-      <Stack>
-        <TeamContainer
-          onMouseEnter={() => onHover(game.match.placeholderGame?.home)}
-        >
-          {HomeTeam}
-        </TeamContainer>
-        <Divider />
-        <TeamContainer
-          onMouseEnter={() => onHover(game.match.placeholderGame?.away)}
-        >
-          {AwayTeam}
-        </TeamContainer>
+      <Stack direction={"row"} alignItems="stretch" justifyContent={"stretch"}>
+        <Stack style={{ flexGrow: 1 }}>
+          <TeamContainer
+            onMouseEnter={() => onHover(game.match.placeholderGame?.home)}
+          >
+            {HomeTeam}
+          </TeamContainer>
+          <Divider />
+          <TeamContainer
+            onMouseEnter={() => onHover(game.match.placeholderGame?.away)}
+          >
+            {AwayTeam}
+          </TeamContainer>
+        </Stack>
+        <Score home={game.match.score?.home} away={game.match.score?.away} />
+        {game.rematch && (
+          <Score
+            home={game.rematch?.score?.home}
+            away={game.rematch?.score?.away}
+          />
+        )}
       </Stack>
     </Box>
   );

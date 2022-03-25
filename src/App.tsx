@@ -38,7 +38,7 @@ function App() {
     <div className="App">
       <Grid container>
         <Grid item style={{ flexGrow: 1 }}>
-          <Stack direction={"row"} spacing={4}>
+          <Stack direction={"row"} spacing={4} style={{ marginLeft: "5px" }}>
             {roundNames.map((roundName) => (
               <Round key={roundName} roundName={roundName}>
                 {bracket
