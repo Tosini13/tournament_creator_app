@@ -28,15 +28,24 @@ function App() {
   const GameWithRound = withRoundName(Game);
 
   const highlitghtedGames = useMemo(() => {
-    if (!isChosen || !gameState.context.game || !bracket) {
+    const game = gameState.context.game;
+    const teamId = gameState.context.teamId;
+    if (!isChosen || (!game && !teamId) || !bracket) {
       return [];
     }
-    return getRelatedGames(gameState.context.game, bracket);
-  }, [gameState.context.game, bracket, isChosen]);
+    if (teamId) {
+      return bracket.filter(
+        (game) =>
+          game.match.homeTeam === teamId || game.match.awayTeam === teamId
+      );
+    }
+    if (!game) return [];
+    return getRelatedGames(game, bracket);
+  }, [gameState.context, bracket, isChosen]);
 
   return (
     <div className="App">
-      <Grid container>
+      <Grid container wrap="nowrap">
         <Grid item style={{ flexGrow: 1 }}>
           <Stack direction={"row"} spacing={4} style={{ marginLeft: "5px" }}>
             {roundNames.map((roundName) => (

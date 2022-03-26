@@ -5,15 +5,29 @@ export type TGameRelation = TPlaceholderGameTeam;
 
 type TBracketStateContext = {
   game: TGameRelation | null;
-};
-
-type TBracketStateEvent = {
-  type: string;
-  game?: TGameRelation | null;
+  teamId: string | null;
 };
 
 const initBracket: TBracketStateContext = {
   game: null,
+  teamId: null,
+};
+
+type TChooseTeamStateEvent = {
+  type: string;
+  teamId?: string | null;
+};
+const chooseTeam = assign<TBracketStateContext, TChooseTeamStateEvent>({
+  teamId: (_context, event) => event.teamId ?? null,
+});
+
+const clearTeam = assign<TBracketStateContext>({
+  teamId: () => null,
+});
+
+type TBracketStateEvent = {
+  type: string;
+  game?: TGameRelation | null;
 };
 
 const chooseGame = assign<TBracketStateContext, TBracketStateEvent>({
@@ -35,14 +49,22 @@ export const gameMachine = createMachine<TBracketStateContext>(
             target: "chosen",
             actions: ["choose"],
           },
+          CHOOSE_TEAM: {
+            target: "chosen",
+            actions: ["chooseTeam"],
+          },
         },
       },
       chosen: {
         on: {
-          CLEAR: { target: "notChosen", actions: ["clear"] },
+          CLEAR: { target: "notChosen", actions: ["clear", "clearTeam"] },
           CHOOSE: {
             target: "chosen",
-            actions: ["choose"],
+            actions: ["clearTeam", "choose"],
+          },
+          CHOOSE_TEAM: {
+            target: "chosen",
+            actions: ["clear", "chooseTeam"],
           },
         },
       },
@@ -52,6 +74,8 @@ export const gameMachine = createMachine<TBracketStateContext>(
     actions: {
       choose: chooseGame,
       clear: clearGame,
+      chooseTeam: chooseTeam,
+      clearTeam: clearTeam,
     },
   }
 );

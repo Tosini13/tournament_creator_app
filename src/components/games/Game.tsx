@@ -24,14 +24,21 @@ const Game: React.FC<TGameProps> = ({ game, highlighted }) => {
   const { gameService } = useContext(GlobalStateContext);
   const [, send] = useActor(gameService);
 
-  const onHover = (placeholder?: TPlaceholderGameTeam) => {
-    send({
-      type: "CHOOSE",
-      game: {
-        ...placeholder,
-        round: placeholder?.game.roundName,
-      },
-    });
+  const onHover = (team?: string, placeholder?: TPlaceholderGameTeam) => {
+    if (team) {
+      send({
+        type: "CHOOSE_TEAM",
+        teamId: team,
+      });
+    } else {
+      send({
+        type: "CHOOSE",
+        game: {
+          ...placeholder,
+          round: placeholder?.game.roundName,
+        },
+      });
+    }
   };
 
   const onLeave = () => {
@@ -66,13 +73,17 @@ const Game: React.FC<TGameProps> = ({ game, highlighted }) => {
       <Stack direction={"row"} alignItems="stretch" justifyContent={"stretch"}>
         <Stack style={{ flexGrow: 1 }}>
           <TeamContainer
-            onMouseEnter={() => onHover(game.match.placeholderGame?.home)}
+            onMouseEnter={() =>
+              onHover(game.match.homeTeam, game.match.placeholderGame?.home)
+            }
           >
             {HomeTeam}
           </TeamContainer>
           <Divider />
           <TeamContainer
-            onMouseEnter={() => onHover(game.match.placeholderGame?.away)}
+            onMouseEnter={() =>
+              onHover(game.match.awayTeam, game.match.placeholderGame?.away)
+            }
           >
             {AwayTeam}
           </TeamContainer>

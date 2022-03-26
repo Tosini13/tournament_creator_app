@@ -1,5 +1,7 @@
+import { Grid } from "@mui/material";
 import { useActor } from "@xstate/react";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
+import { getAllRounds } from "tournament_creator";
 import {
   TRoundName,
   E_PLAY_OFFS_ROUND,
@@ -20,16 +22,18 @@ const Params: React.FC<TParamsProps> = () => {
     bracketState.context.variables.lastPlaceMatch ?? 1
   );
 
+  const returnMatches = bracketState.context.variables?.returnMatches;
+
   useEffect(() => {
     bracketAction({
       type: "CHANGE_VARIABLES",
       payload: {
-        returnMatches: bracketState.context.variables.returnMatches,
+        returnMatches,
         lastPlaceMatch,
         round,
       },
     });
-  }, [lastPlaceMatch, round]);
+  }, [lastPlaceMatch, round, returnMatches]);
 
   const checkTheReturnMatch = (index: TRoundName, isChecked: boolean) => {
     bracketAction({
@@ -44,7 +48,7 @@ const Params: React.FC<TParamsProps> = () => {
     });
   };
 
-  const returnMatches = bracketState.context.variables?.returnMatches;
+  const allRounds = useMemo(() => getAllRounds(round), [round]);
   return (
     <>
       <TypographyHeader>Rounds</TypographyHeader>
@@ -77,43 +81,24 @@ const Params: React.FC<TParamsProps> = () => {
       </SubMenuContainer>
       <TypographyHeader>Return Matches:</TypographyHeader>
       <SubMenuContainer>
-        <input
-          name={E_PLAY_OFFS_ROUND.FINAL}
-          type={"checkbox"}
-          checked={returnMatches[E_PLAY_OFFS_ROUND.FINAL]}
-          onChange={(e) =>
-            checkTheReturnMatch(E_PLAY_OFFS_ROUND.FINAL, e.target.checked)
-          }
-        />
-        F
-        <input
-          name="SF"
-          type={"checkbox"}
-          checked={returnMatches[E_PLAY_OFFS_ROUND.SEMI_FINAL]}
-          onChange={(e) =>
-            checkTheReturnMatch(E_PLAY_OFFS_ROUND.SEMI_FINAL, e.target.checked)
-          }
-        />
-        SF
-        <input
-          name="QF"
-          type={"checkbox"}
-          checked={returnMatches[E_PLAY_OFFS_ROUND.QUARTER_FINAL]}
-          onChange={(e) =>
-            checkTheReturnMatch(
-              E_PLAY_OFFS_ROUND.QUARTER_FINAL,
-              e.target.checked
-            )
-          }
-        />
-        QF
-        <input
-          name="16"
-          type={"checkbox"}
-          checked={returnMatches["1/16"]}
-          onChange={(e) => checkTheReturnMatch("1/16", e.target.checked)}
-        />
-        1/16
+        <Grid container>
+          {Object.entries(returnMatches)
+            .filter(([round]) => allRounds.includes(round as TRoundName))
+            .map(([round, value]) => (
+              <Grid item xs={6} key={round}>
+                <input
+                  id={round}
+                  name={round}
+                  type={"checkbox"}
+                  checked={value}
+                  onChange={(e) =>
+                    checkTheReturnMatch(round as TRoundName, e.target.checked)
+                  }
+                />
+                <label htmlFor={round}>{round}</label>
+              </Grid>
+            ))}
+        </Grid>
       </SubMenuContainer>
     </>
   );
